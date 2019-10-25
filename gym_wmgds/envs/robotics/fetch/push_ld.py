@@ -7,7 +7,7 @@ from gym_wmgds.envs.robotics import fetch_env
 MODEL_XML_PATH = os.path.join('fetch', 'push_ld.xml')
 
 
-class FetchPushLDEnv(fetch_env.FetchLDEnv, utils.EzPickle):
+class FetchPushLDEnv(fetch_env.FetchLDEnv, utils.EzPickle ):
     def __init__(self, reward_type='sparse'):
         initial_qpos = {
             'robot0:slide0': 0.405,
