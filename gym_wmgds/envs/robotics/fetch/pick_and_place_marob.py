@@ -8,7 +8,7 @@ MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place_marob_2.xml')
 
 
 class FetchPickAndPlaceMaRobEnv(fetch_marob_env.FetchMaRobEnv, utils.EzPickle):
-    def __init__(self, reward_type='sparse', n_objects=1, obj_action_type=[0,1,2], observe_obj_grp=False, obj_range=0.15, hide_extra_objs=False):
+    def __init__(self, reward_type='sparse', n_objects=1, obj_action_type=[0,1,2], observe_obj_grp=False, obj_range=0.15, n_robots=2):
         initial_qpos = {
             'robot0:slide0': 0.405,
             'robot0:slide1': 0.48,
@@ -24,5 +24,5 @@ class FetchPickAndPlaceMaRobEnv(fetch_marob_env.FetchMaRobEnv, utils.EzPickle):
             gripper_extra_height=0.2, target_in_the_air=True, target_stacked=False, target_offset=0.0,
             obj_range=obj_range, target_range=0.15, distance_threshold=0.05,
             initial_qpos=initial_qpos, reward_type=reward_type,
-            n_objects=n_objects, obj_action_type=obj_action_type, observe_obj_grp=observe_obj_grp)
+            n_objects=n_objects, obj_action_type=obj_action_type, observe_obj_grp=observe_obj_grp, n_robots=n_robots)
         utils.EzPickle.__init__(self)
