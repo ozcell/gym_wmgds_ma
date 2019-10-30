@@ -416,6 +416,15 @@ for reward_type in ['sparse', 'dense']:
             max_episode_steps=50*(np.minimum(n_objects,3)-1),
         )
 
+    #Multi-agent robotics
+
+    register(
+        id='FetchPickAndPlaceMaRob{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceMaRobEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
     # Kortex
     register(
         id='KortexReach{}-v0'.format(suffix),
