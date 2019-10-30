@@ -382,6 +382,9 @@ class FetchMaRobEnv(robot_env.RobotEnv):
 
         # Extract information for sampling goals.
         self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()
+        for i_robot in range(1, self.n_robots):
+            self.initial_gripper_xpos += self.sim.data.get_site_xpos('robot' + str(i_robot) + ':grip').copy()
+        self.initial_gripper_xpos /= self.n_robots
         self.height_offset = self.sim.data.get_site_xpos('object0')[2]
         
         # Just to send object0 back to the floor 
