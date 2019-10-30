@@ -5,7 +5,7 @@
 		<geom conaffinity="0" contype="0" pos="0 0 0" rgba="0 0.5 0 0.1" size="0.005 1 0.001" type="box"></geom>
 		<geom conaffinity="0" contype="0" pos="0 0 0" rgba="0 0.5 0 0.1" size="0.005 0.005 1" type="box"></geom>
 	</body>
-	<body childclass="robot1:fetch" name="robot1:base_link" pos="2.2869 2.2641 0" quat="0 0 0 1">
+	<body childclass="robot1:fetch" name="robot1:base_link" pos="0.2869 0.2641 0">
 		<joint armature="0.0001" axis="1 0 0" damping="1e+11" name="robot1:slide0" pos="0 0 0" type="slide"></joint>
 		<joint armature="0.0001" axis="0 1 0" damping="1e+11" name="robot1:slide1" pos="0 0 0" type="slide"></joint>
 		<joint armature="0.0001" axis="0 0 1" damping="1e+11" name="robot1:slide2" pos="0 0 0" type="slide"></joint>
@@ -71,7 +71,7 @@
 										<geom mesh="robot1:wrist_roll_link" name="robot1:wrist_roll_link" material="robot1:arm_mat"></geom>
 										<body euler="0 0 0" name="robot1:gripper_link" pos="0.1664 0 0">
 											<inertial diaginertia="0.0024 0.0019 0.0013" mass="1.5175" pos="-0.09 -0.0001 -0.0017" quat="0 0.7071 0 0.7071"></inertial>
-											<geom mesh="robot1:gripper_link" name="robot1:gripper_link" material="robot1:gripper_mat"></geom>
+											<geom mesh="robot1:gripper_link" name="robot1:gripper_link" material="robot1:gripper_mat" quat="1 1 0 0"></geom>
 											<body name="robot1:gipper_camera_link" pos="0.055 0 0.0225">
 												<body name="robot1:gripper_camera_rgb_frame" pos="0 0.02 0">
 													<body name="robot1:gripper_camera_rgb_optical_frame" pos="0 0 0" quat="0.5 -0.5 0.5 -0.5">
@@ -83,15 +83,15 @@
 												</body>
 											</body>
 
-											<body childclass="robot1:fetchGripper" name="robot1:r_gripper_finger_link" pos="0 0.0159 0">
+											<body childclass="robot1:fetchGripper" name="robot1:r_gripper_finger_link" pos="0 0 0.0159">
 												<inertial diaginertia="0.1 0.1 0.1" mass="4" pos="-0.01 0 0"></inertial>
-												<joint axis="0 1 0" name="robot1:r_gripper_finger_joint" range="0 0.05"></joint>
-												<geom pos="0 -0.008 0" size="0.0385 0.007 0.0135" type="box" name="robot1:r_gripper_finger_link" material="robot1:gripper_finger_mat" condim="4" friction="1 0.05 0.01"></geom>
+												<joint axis="0 0 1" name="robot1:r_gripper_finger_joint" range="0 0.05"></joint>
+												<geom pos="0 -0.008 0" quat="1 1 0 0" size="0.0385 0.007 0.0135" type="box" name="robot1:r_gripper_finger_link" material="robot1:gripper_finger_mat" condim="4" friction="1 0.05 0.01"></geom>
 											</body>
-											<body childclass="robot1:fetchGripper" name="robot1:l_gripper_finger_link" pos="0 -0.0159 0">
+											<body childclass="robot1:fetchGripper" name="robot1:l_gripper_finger_link" pos="0 0 -0.0159">
 												<inertial diaginertia="0.1 0.1 0.1" mass="4" pos="-0.01 0 0"></inertial>
-												<joint axis="0 -1 0" name="robot1:l_gripper_finger_joint" range="0 0.05"></joint>
-												<geom pos="0 0.008 0" size="0.0385 0.007 0.0135" type="box" name="robot1:l_gripper_finger_link" material="robot1:gripper_finger_mat" condim="4" friction="1 0.05 0.01"></geom>
+												<joint axis="0 0 -1" name="robot1:l_gripper_finger_joint" range="0 0.05"></joint>
+												<geom pos="0 0.008 0" quat="1 1 0 0" size="0.0385 0.007 0.0135" type="box" name="robot1:l_gripper_finger_link" material="robot1:gripper_finger_mat" condim="4" friction="1 0.05 0.01"></geom>
 											</body>
 											<site name="robot1:grip" pos="0.02 0 0" rgba="0 0 0 0" size="0.02 0.02 0.02"></site>
 										</body>
