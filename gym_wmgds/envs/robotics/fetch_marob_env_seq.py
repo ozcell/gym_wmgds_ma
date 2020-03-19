@@ -24,7 +24,7 @@ class FetchMaRobEnv(robot_env.RobotEnv):
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
         target_in_the_air, target_stacked, target_offset, obj_range, target_range,
         distance_threshold, initial_qpos, reward_type, n_objects, obj_action_type, observe_obj_grp, 
-        n_robots=2, change_stack_order=False
+        n_robots=2, change_stack_order=False, widerangeobj=False
     ):
         """Initializes a new Fetch environment.
 
@@ -63,7 +63,7 @@ class FetchMaRobEnv(robot_env.RobotEnv):
 
         self.initial_qpos = initial_qpos
         self.stack_prob = 0.5
-        self.widerangeobj = False
+        self.widerangeobj = widerangeobj
 
         super(FetchMaRobEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
@@ -385,7 +385,7 @@ class FetchMaRobEnv(robot_env.RobotEnv):
 
         # Extract information for sampling goals.
         if self.widerangeobj:
-            self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()*0.5 + 
+            self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()*0.5 + \
                                         self.sim.data.get_site_xpos('robot1:grip').copy()*0.5
         else:
             self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()
