@@ -419,8 +419,15 @@ for reward_type in ['sparse', 'dense']:
     #Multi-agent robotics
 
     register(
-        id='FetchPickAndPlaceMaRob{}-v1'.format(suffix),
-        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceMaRobEnv',
+        id='FetchPickAndPlaceMaRobLong{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceMaRobLongEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
+    register(
+        id='FetchPickAndPlaceMaRobSeq{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceMaRobSeqEnv',
         kwargs=kwargs,
         max_episode_steps=50,
     )

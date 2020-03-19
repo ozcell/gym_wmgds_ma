@@ -7,7 +7,7 @@ from gym_wmgds.envs.robotics import fetch_marob_env
 MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place_marob_2.xml')
 
 
-class FetchPickAndPlaceMaRobEnv(fetch_marob_env.FetchMaRobEnv, utils.EzPickle):
+class FetchPickAndPlaceMaRobLongEnv(fetch_marob_env.FetchMaRobEnv, utils.EzPickle):
     def __init__(self, reward_type='sparse', n_objects=1, obj_action_type=[0,1,2], observe_obj_grp=False, obj_range=0.15, n_robots=2):
         initial_qpos = {
             'robot0:slide0': 0.405,
