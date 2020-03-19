@@ -63,6 +63,7 @@ class FetchMaRobEnv(robot_env.RobotEnv):
 
         self.initial_qpos = initial_qpos
         self.stack_prob = 0.5
+        self.widerangeobj = False
 
         super(FetchMaRobEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
@@ -383,7 +384,11 @@ class FetchMaRobEnv(robot_env.RobotEnv):
             self.sim.step()
 
         # Extract information for sampling goals.
-        self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()#*0.5 + self.sim.data.get_site_xpos('robot1:grip').copy()*0.5 
+        if self.widerangeobj:
+            self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()*0.5 + 
+                                        self.sim.data.get_site_xpos('robot1:grip').copy()*0.5
+        else:
+            self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()
         #for i_robot in range(1, self.n_robots):
         #    self.initial_gripper_xpos += self.sim.data.get_site_xpos('robot' + str(i_robot) + ':grip').copy()
         #self.initial_gripper_xpos /= self.n_robots
