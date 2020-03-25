@@ -64,6 +64,9 @@ class FetchMultiEnv(robot_env.RobotEnv):
         self.initial_qpos = initial_qpos
         self.stack_prob = 0.5
 
+        self.target_in_the_air_percent = 0.5
+        self.target_in_the_air_lower = 0.00
+
         super(FetchMultiEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
             initial_qpos=initial_qpos)
@@ -223,6 +226,21 @@ class FetchMultiEnv(robot_env.RobotEnv):
         for i_target in range(0, self.n_objects):
             site_id = self.sim.model.site_name2id('target' + str(i_target))
             self.sim.model.site_pos[site_id] = target_pos[i_target] - sites_offset[0]
+        #foo_pos = self.initial_gripper_xpos[:3]
+        #foo_pos[2] = self.height_offset + 0.250
+        #site_id = self.sim.model.site_name2id('foo_target')
+        #self.sim.model.site_pos[site_id] = foo_pos.copy() - sites_offset[0]
+
+        #foo_pos = self.initial_gripper_xpos[:3]
+        #foo_pos[2] = self.height_offset
+        #site_id = self.sim.model.site_name2id('foo_target_floor')
+        #self.sim.model.site_pos[site_id] = foo_pos.copy() - sites_offset[0]
+
+        #foo_pos = self.initial_gripper_xpos[:3]
+        #foo_pos[2] = self.height_offset
+        #site_id = self.sim.model.site_name2id('foo_object')
+        #self.sim.model.site_pos[site_id] = foo_pos.copy() - sites_offset[0]
+        
         self.sim.forward()
 
     def _reset_sim(self):
@@ -339,8 +357,8 @@ class FetchMultiEnv(robot_env.RobotEnv):
                 goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
                 goal += self.target_offset
                 goal[2] = self.height_offset
-                if self.target_in_the_air and self.np_random.uniform() < 0.5:
-                    goal[2] += self.np_random.uniform(0, 0.45)
+                if self.target_in_the_air and self.np_random.uniform() < self.target_in_the_air_percent:
+                    goal[2] += self.np_random.uniform(self.target_in_the_air_lower, 0.45)
                 goal_all.append(goal.copy())
 
         goal_all = np.asarray(goal_all)
