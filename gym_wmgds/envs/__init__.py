@@ -416,6 +416,13 @@ for reward_type in ['sparse', 'dense']:
             max_episode_steps=50*(np.minimum(n_objects,3)-1),
         )
 
+    register(
+        id='FetchPickAndPlaceHardMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceHardMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )
+
     #Multi-agent robotics
 
     register(
