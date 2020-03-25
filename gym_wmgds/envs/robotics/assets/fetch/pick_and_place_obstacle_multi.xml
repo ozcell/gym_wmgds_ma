@@ -15,21 +15,18 @@
 			<site name="target2" pos="0 0.0 0.5" size="0.02 0.02 0.02" rgba="0.5 0 0 1" type="sphere"></site>
 			<site name="target3" pos="0 0.1 0.5" size="0.02 0.02 0.02" rgba="0.3 0 0 1" type="sphere"></site>
 			<site name="target4" pos="0 0.2 0.5" size="0.02 0.02 0.02" rgba="0.1 0 0 1" type="sphere"></site>
-			<!--site name="foo_object" pos="0 0.2 0.5" size="0.175 0.175 0.025" rgba="0 1 0 0.5" type="box"></site-->
-			<!--site name="foo_target_floor" pos="0 0.2 0.5" size="0.175 0.175 0.025" rgba="1 0 0.5 0.5" type="box"></site-->
-			<!--site name="foo_target" pos="0 0.2 0.5" size="0.175 0.175 0.225" rgba="1 0 0 0.3" type="box"></site-->
 		</body>
 
 		<include file="robot.xml"></include>
 
 		<body pos="1.3 0.75 0.2" name="table0">
-			<geom size="0.25 0.35 0.2" type="box" mass="2000" material="table_mat"></geom>
+		<geom size="0.25 0.35 0.2" type="box" mass="2000" material="table_mat"></geom>
+			<geom pos="0 0 0.30" size="0.25 0.01 0.10" type="box" group="1" material="table_mat"/>
 		</body>
 
 		<body name="object0" pos="0.025 0.025 0.025">
 			<joint name="object0:joint" type="free" damping="0.01"></joint>
 			<geom size="0.025 0.025 0.025" type="box" condim="3" name="object0" material="block_0_mat" mass="2"></geom>
-			<!--geom size="0.025 0.025 0.025" type="box" condim="3" name="object0" material="block_3_mat" mass="100"></geom-->
 			<site name="object0" pos="0 0 0" size="0.02 0.02 0.02" rgba="1 0 0 1" type="sphere"></site>
 		</body>
 
