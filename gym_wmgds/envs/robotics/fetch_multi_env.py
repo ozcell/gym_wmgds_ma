@@ -24,7 +24,7 @@ class FetchMultiEnv(robot_env.RobotEnv):
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
         target_in_the_air, target_stacked, target_offset, obj_range, target_range,
         distance_threshold, initial_qpos, reward_type, n_objects, obj_action_type, observe_obj_grp, 
-        change_stack_order=False, gripped_object=False
+        change_stack_order=False, gripped_object=False, target_in_the_air_percent=0.50, target_in_the_air_lower=0.00
     ):
         """Initializes a new Fetch environment.
 
@@ -64,8 +64,8 @@ class FetchMultiEnv(robot_env.RobotEnv):
         self.initial_qpos = initial_qpos
         self.stack_prob = 0.5
 
-        self.target_in_the_air_percent = 0.5
-        self.target_in_the_air_lower = 0.00
+        self.target_in_the_air_percent = target_in_the_air_percent
+        self.target_in_the_air_lower = target_in_the_air_lower
 
         super(FetchMultiEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
