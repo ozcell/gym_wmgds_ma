@@ -24,7 +24,10 @@ class FetchMultiEnv(robot_env.RobotEnv):
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
         target_in_the_air, target_stacked, target_offset, obj_range, target_range,
         distance_threshold, initial_qpos, reward_type, n_objects, obj_action_type, observe_obj_grp, 
-        change_stack_order=False, gripped_object=False, target_in_the_air_percent=0.50, target_in_the_air_lower=0.00
+        change_stack_order=False, gripped_object=False, 
+        target_in_the_air_percent=0.50, target_in_the_air_lower=0.00,
+        obj_range_lower=None, obj_range_upper=None,
+        target_range_lower=None, target_range_upper=None
     ):
         """Initializes a new Fetch environment.
 
@@ -66,6 +69,10 @@ class FetchMultiEnv(robot_env.RobotEnv):
 
         self.target_in_the_air_percent = target_in_the_air_percent
         self.target_in_the_air_lower = target_in_the_air_lower
+        self.obj_range_lower = obj_range_lower
+        self.obj_range_upper = obj_range_upper
+        self.target_range_lower = target_range_lower
+        self.target_range_upper = target_range_upper
 
         super(FetchMultiEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
@@ -259,7 +266,10 @@ class FetchMultiEnv(robot_env.RobotEnv):
         for i_object in range(obj_grp, obj_grp + self.n_objects):
             object_xpos = self.initial_gripper_xpos[:2]
             while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
-                object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+                if self.obj_range_lower is None:
+                    object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+                else:
+                    object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(self.obj_range_lower, self.obj_range_upper, size=2)
                 placement_count += 1
                 for j_object in range(obj_grp, i_object):
                     if np.linalg.norm(object_xpos - self.sim.data.get_joint_qpos('object' + str(j_object) + ':joint')[:2]) < 0.070:
@@ -354,9 +364,12 @@ class FetchMultiEnv(robot_env.RobotEnv):
                             goal[2] = self.height_offset 
                             goal_all.append(goal.copy())
             else:
-                goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
-                goal += self.target_offset
+                if self.target_range_lower is None: 
+                    goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+                else:
+                    goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(self.target_range_lower, self.target_range_upper, size=3)
                 goal[2] = self.height_offset
+                goal += self.target_offset
                 if self.target_in_the_air and self.np_random.uniform() < self.target_in_the_air_percent:
                     goal[2] += self.np_random.uniform(self.target_in_the_air_lower, 0.45)
                 goal_all.append(goal.copy())
