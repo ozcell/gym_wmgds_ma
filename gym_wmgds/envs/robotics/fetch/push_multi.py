@@ -60,4 +60,4 @@ class FetchPushObstacleMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPickle):
             obj_range_lower=[-0.15,-0.15], obj_range_upper=[0.15,0.05],
             target_range_lower=[-0.15,0.10,0.00], target_range_upper=[0.15,0.25,0.00],
             )        
-            utils.EzPickle.__init__(self)
+        utils.EzPickle.__init__(self)
