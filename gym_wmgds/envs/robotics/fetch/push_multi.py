@@ -59,7 +59,7 @@ class FetchPushObstacleSideGapMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPi
             initial_qpos=initial_qpos, reward_type=reward_type,
             n_objects=n_objects, obj_action_type=obj_action_type, observe_obj_grp=observe_obj_grp,
             obj_range_lower=[-0.15,-0.15], obj_range_upper=[0.15,0.05],
-            target_range_lower=[-0.15,0.10,0.00], target_range_upper=[0.15,0.25,0.00],
+            target_range_lower=[-0.15,0.125,0.00], target_range_upper=[0.15,0.25,0.00],
             )        
         utils.EzPickle.__init__(self)
 
@@ -88,7 +88,7 @@ class FetchPushObstacleMiddleGapMultiEnv(fetch_multi_env.FetchMultiEnv, utils.Ez
             initial_qpos=initial_qpos, reward_type=reward_type,
             n_objects=n_objects, obj_action_type=obj_action_type, observe_obj_grp=observe_obj_grp,
             obj_range_lower=[-0.15,-0.15], obj_range_upper=[0.15,0.05],
-            target_range_lower=[-0.15,0.10,0.00], target_range_upper=[0.15,0.25,0.00],
+            target_range_lower=[-0.15,0.125,0.00], target_range_upper=[0.15,0.25,0.00],
             )        
         utils.EzPickle.__init__(self)
     
