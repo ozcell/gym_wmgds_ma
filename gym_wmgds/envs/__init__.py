@@ -431,6 +431,13 @@ for reward_type in ['sparse', 'dense']:
     )    
 
     register(
+        id='FetchPushObstacleDoubleGapMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPushObstacleDoubleGapMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=80,
+    )   
+
+    register(
         id='FetchPickAndPlaceObstacleMulti{}-v1'.format(suffix),
         entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceObstacleMultiEnv',
         kwargs=kwargs,

@@ -23,6 +23,7 @@ from gym_wmgds.envs.robotics.fetch.pick_and_place_marob_seq import FetchPickAndP
 
 from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleSideGapMultiEnv
 from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleMiddleGapMultiEnv
+from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleDoubleGapMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceObstacleMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceShelfMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceHardMultiEnv
