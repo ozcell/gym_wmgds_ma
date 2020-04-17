@@ -417,7 +417,7 @@ for reward_type in ['sparse', 'dense']:
         )
 
     # Obstacle envs
-     register(
+    register(
         id='FetchPushObstacleSideGapMulti{}-v1'.format(suffix),
         entry_point='gym_wmgds.envs.robotics:FetchPushObstacleSideGapMultiEnv',
         kwargs=kwargs,
