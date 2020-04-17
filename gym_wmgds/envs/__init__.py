@@ -416,6 +416,49 @@ for reward_type in ['sparse', 'dense']:
             max_episode_steps=50*(np.minimum(n_objects,3)-1),
         )
 
+    # Obstacle envs
+     register(
+        id='FetchPushObstacleSideGapMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPushObstacleSideGapMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )    
+
+    register(
+        id='FetchPushObstacleMiddleGapMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPushObstacleMiddleGapMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )    
+
+    register(
+        id='FetchPushObstacleDoubleGapMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPushObstacleDoubleGapMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=80,
+    )   
+
+    register(
+        id='FetchPickAndPlaceObstacleMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceObstacleMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )  
+
+    register(
+        id='FetchPickAndPlaceShelfMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceShelfMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )  
+
+    register(
+        id='FetchPickAndPlaceHardMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceHardMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )       
+
     # Kortex
     register(
         id='KortexReach{}-v0'.format(suffix),
