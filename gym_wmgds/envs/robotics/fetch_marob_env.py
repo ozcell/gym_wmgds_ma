@@ -15,6 +15,12 @@ def goal_distance(goal_a, goal_b):
     assert goal_a.shape == goal_b.shape
     return np.linalg.norm(goal_a - goal_b, axis=-1)
 
+def quat_from_angle_and_axis(angle, axis):
+    assert axis.shape == (3,)
+    axis /= np.linalg.norm(axis)
+    quat = np.concatenate([[np.cos(angle / 2.)], np.sin(angle / 2.) * axis])
+    quat /= np.linalg.norm(quat)
+    return quat
 
 class FetchMaRobEnv(robot_env.RobotEnv):
     """Superclass for all Fetch environments.
@@ -24,7 +30,7 @@ class FetchMaRobEnv(robot_env.RobotEnv):
         self, model_path, n_substeps, gripper_extra_height, block_gripper,
         target_in_the_air, target_stacked, target_offset, obj_range, target_range,
         distance_threshold, initial_qpos, reward_type, n_objects, obj_action_type, observe_obj_grp, 
-        n_robots=2, change_stack_order=False
+        n_robots=2, change_stack_order=False, rotation_threshold=0.05
     ):
         """Initializes a new Fetch environment.
 
@@ -45,11 +51,11 @@ class FetchMaRobEnv(robot_env.RobotEnv):
         self.block_gripper = block_gripper
         self.target_in_the_air = target_in_the_air
         self.target_stacked = target_stacked
-        self.change_stack_order = change_stack_order
         self.target_offset = target_offset
         self.obj_range = obj_range
         self.target_range = target_range
         self.distance_threshold = distance_threshold
+        self.rotation_threshold = rotation_threshold
         self.reward_type = reward_type
         
         self.n_objects = n_objects
@@ -64,6 +70,8 @@ class FetchMaRobEnv(robot_env.RobotEnv):
         self.initial_qpos = initial_qpos
         self.stack_prob = 0.5
 
+        self.parallel_quats = [rotations.euler2quat(r) for r in rotations.get_parallel_rotations()]
+
         super(FetchMaRobEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
             initial_qpos=initial_qpos)
@@ -72,12 +80,38 @@ class FetchMaRobEnv(robot_env.RobotEnv):
     # ----------------------------
 
     def compute_reward(self, achieved_goal, goal, info):
-        # Compute distance between goal and the achieved goal.
-        d = goal_distance(achieved_goal, goal)
         if self.reward_type == 'sparse':
-            return -(d > self.distance_threshold).astype(np.float32)
+            success = self._is_success(achieved_goal, goal).astype(np.float32)
+            #if 'palm' in info:
+            #    false_ind = info["palm"][:,0] != 1.0
+            #    if success[np.where(false_ind)].sum() > 2:
+            #        print(success[np.where(false_ind)].sum())
+            #    success[false_ind] = 0.
+            return (success - 1.)
         else:
-            return -d
+            d_pos, d_rot = self._goal_distance(achieved_goal, goal)
+            # We weigh the difference in position to avoid that `d_pos` (in meters) is completely
+            # dominated by `d_rot` (in radians).
+            return -(10. * d_pos + d_rot)
+
+    def _goal_distance(self, goal_a, goal_b):
+
+        assert goal_a.shape == goal_b.shape
+        assert goal_a.shape[-1] == 7
+
+        d_pos = np.zeros_like(goal_a[..., 0])
+        d_rot = np.zeros_like(goal_b[..., 0])
+
+        delta_pos = goal_a[..., :3] - goal_b[..., :3]
+        d_pos = np.linalg.norm(delta_pos, axis=-1)
+
+        quat_a, quat_b = goal_a[..., 3:], goal_b[..., 3:]
+        # Subtract quaternions and extract angle between them.
+        quat_diff = rotations.quat_mul(quat_a, rotations.quat_conjugate(quat_b))
+        angle_diff = 2 * np.arccos(np.clip(quat_diff[..., 0], -1., 1.))
+        d_rot = angle_diff
+
+        return d_pos, d_rot
 
     # RobotEnv methods
     # ----------------------------
@@ -152,10 +186,11 @@ class FetchMaRobEnv(robot_env.RobotEnv):
 
         obs_all = []
 
-        object_pos, object_rot, object_velp, object_velr, object_rel_pos, object_ends_pos = [], [], [], [], [], []
+        object_pos, object_rot, object_velp, object_velr, object_rel_pos, object_ends_pos, object_quat = [], [], [], [], [], [], []
         for i_object in range(obj_grp, obj_grp + self.n_objects):
             # observations for the robot
             object_pos.append(self.sim.data.get_site_xpos('object' + str(i_object)))
+            object_quat.append(self.sim.data.get_joint_qpos('object' + str(i_object) + ':joint'))
             # rotations
             object_rot.append(rotations.mat2euler(self.sim.data.get_site_xmat('object' + str(i_object))))
             # velocities
@@ -164,15 +199,16 @@ class FetchMaRobEnv(robot_env.RobotEnv):
             # gripper state
             object_rel_pos.append(self.sim.data.get_site_xpos('object' + str(i_object)) - grip_pos)
 
-            object_ends_pos.append([self.sim.data.get_site_xpos('object' + str(i_object) + ':left'),
-                                    self.sim.data.get_site_xpos('object' + str(i_object) + ':right')])
+            #object_ends_pos.append([self.sim.data.get_site_xpos('object' + str(i_object) + ':left'),
+            #                        self.sim.data.get_site_xpos('object' + str(i_object) + ':right')])
         
         object_pos = np.asarray(object_pos)
+        object_quat = np.asarray(object_quat)
         object_rot = np.asarray(object_rot)
         object_velp = np.asarray(object_velp)
         object_velr = np.asarray(object_velr)
         object_rel_pos = np.asarray(object_rel_pos)
-        object_ends_pos = np.asarray(object_ends_pos)
+        #object_ends_pos = np.asarray(object_ends_pos)
 
         for i_robot in range(self.n_robots):
             obs = np.concatenate([
@@ -192,12 +228,12 @@ class FetchMaRobEnv(robot_env.RobotEnv):
             obs_all.append(obs.copy())
 
         target_pos = self.goal.copy().reshape(self.n_objects,-1)
-        target_pos = (target_pos[:,0:3] + target_pos[:,3:6])/2.
+        #target_pos = (target_pos[:,0:3] + target_pos[:,3:6])/2.
         target_rel_pos, target_velp = [], []
         for i_object in range(obj_grp, obj_grp + self.n_objects):
             # observations for the object
             # object state wrt target
-            target_rel_pos.append(target_pos[i_object%self.max_n_objects] - self.sim.data.get_site_xpos('object' + str(i_object)))
+            target_rel_pos.append(target_pos[i_object%self.max_n_objects,0:3] - self.sim.data.get_site_xpos('object' + str(i_object)))
             target_velp.append(0 - self.sim.data.get_site_xvelp('object' + str(i_object)) * dt)
 
         target_rel_pos = np.asarray(target_rel_pos)
@@ -220,7 +256,8 @@ class FetchMaRobEnv(robot_env.RobotEnv):
         obs_all.append(obs.copy())
 
         obs = np.asarray(obs_all)
-        achieved_goal = object_ends_pos.copy().ravel()
+        achieved_goal = object_quat.copy().ravel()
+        #achieved_goal = object_ends_pos.copy().ravel()
 
         return {
             'observation': obs.copy(),
@@ -238,14 +275,17 @@ class FetchMaRobEnv(robot_env.RobotEnv):
         self.viewer.cam.elevation = -14.
 
     def _render_callback(self):
-        # Visualize target.
-        sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
-        target_pos = self.goal.copy().reshape(self.n_objects,-1)
+        # Assign current state to target object but offset a bit so that the actual object
+        # is not obscured.
+        target_pose = self.goal.copy().reshape(self.n_objects,-1)
         for i_target in range(0, self.n_objects):
-            site_id = self.sim.model.site_name2id('target' + str(i_target) + ':left')
-            self.sim.model.site_pos[site_id] = target_pos[i_target,0:3] - sites_offset[0]
-            site_id = self.sim.model.site_name2id('target' + str(i_target) + ':right')
-            self.sim.model.site_pos[site_id] = target_pos[i_target,3:6] - sites_offset[0]
+            self.sim.data.set_joint_qpos('target' + str(i_target) + ':joint', target_pose[i_target,])
+            self.sim.data.set_joint_qvel('target' + str(i_target) + ':joint', np.zeros(6))
+
+        #for i_object in range(0, self.n_objects):
+        #    if 'object' + str(i_object) + '_hidden' in self.sim.model.geom_names:
+        #        hidden_id = self.sim.model.geom_name2id('object' + str(i_object) + '_hidden')
+        #        self.sim.model.geom_rgba[hidden_id, 3] = 1.
         self.sim.forward()
 
     def _reset_sim(self):
@@ -298,71 +338,45 @@ class FetchMaRobEnv(robot_env.RobotEnv):
     def _sample_goal(self):
 
         obj_grp = self.max_n_objects if self.ai_object else 0
-        if self.target_stacked:
-            if self.change_stack_order:
-                object_order = np.random.permutation(self.n_objects) + obj_grp
-            else:
-                object_order = np.arange(self.n_objects) + obj_grp
-            goal = np.copy(self.sim.data.get_joint_qpos('object' + str(object_order[0]) + ':joint')[:3])
-        else:
-            object_order = np.arange(self.n_objects)
-            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
-        goal += self.target_offset
-        goal[2] = self.height_offset
-        if self.target_in_the_air and self.np_random.uniform() < 0.5:
-            goal[2] += self.np_random.uniform(0, 0.45)
 
         goal_all = []
-        first_goal = goal.copy()
+        goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+        goal += self.target_offset
+        goal[2] = self.height_offset
+        
+        angle = self.np_random.uniform(-np.pi/4, np.pi/4)
+        if self.np_random.uniform() < 0.5:
+            axis = np.array([0., 0., 1.])
+            if self.target_in_the_air and self.np_random.uniform() < 1.0:
+                goal[2] += self.np_random.uniform(0., 0.25)
+        else:
+            axis = np.array([1., 0., 0.])
+            goal[2] += 0.250 * np.abs(np.sin(angle))
+            if self.target_in_the_air and self.np_random.uniform() < 1.0:
+                goal[2] += self.np_random.uniform(0., 0.25)
+        #axis = self.np_random.uniform(-1., 1., size=3)
+        #axis[1] = 0
+        target_quat = quat_from_angle_and_axis(angle, axis)
 
-        #<--this part is for creating different stacking objectives
-        other_goals = []
-        for i_object in np.argsort(object_order[1:]):
-            other_goal = np.copy(self.sim.data.get_joint_qpos('object' + str(object_order[i_object]) + ':joint')[:3])
-            other_goal += self.target_offset
-            other_goal[2] = self.height_offset
-            if self.target_in_the_air and self.np_random.uniform() < 0.5:
-                other_goal[2] += self.np_random.uniform(0, 0.45)
-            other_goals.append(other_goal)
-        #<--this part is for creating different stacking objectives
+        
+        #parallel_quat = self.parallel_quats[self.np_random.randint(len(self.parallel_quats))]
+        #target_quat = rotations.quat_mul(target_quat, parallel_quat)        
 
-        coin_toss = self.np_random.uniform() < self.stack_prob
-        for  i_object in np.argsort(object_order):
-            if self.target_stacked:
-                if coin_toss:
-                    goal_all.append(goal.copy() + [0., 0., 0.05*i_object])
-                else:
-                    if i_object == 0:
-                        goal_all.append(first_goal.copy())
-                    else:
-                        #<--this part is for creating different stacking objectives
-                        #if self.np_random.uniform() < 0.25:
-                        if self.np_random.uniform() < 0.0:
-                            goal_all.append(other_goals[i_object-1].copy())
-                        #<--this part is for creating different stacking objectives
-                        else:
-                            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
-                            goal += self.target_offset
-                            goal[2] = self.height_offset 
-                            goal_all.append(goal.copy())
-            else:
-                goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
-                goal += self.target_offset
-                goal[2] = self.height_offset
-                if self.target_in_the_air and self.np_random.uniform() < 0.5:
-                    goal[2] += self.np_random.uniform(0, 0.45)
-                goal_all.append(goal.copy())
-
+        target_quat /= np.linalg.norm(target_quat)  # normalized quaternion
+        goal = np.concatenate([goal.copy(), target_quat])
+        goal_all.append(goal.copy())
         goal_all = np.asarray(goal_all)
 
-        goal_all = self.to_6d_goal(goal_all)
+        #goal_all = self.to_6d_goal(goal_all)
 
         return goal_all.copy().ravel()
 
     def _is_success(self, achieved_goal, desired_goal):
-
-        d = goal_distance(achieved_goal, desired_goal)
-        return (d < self.distance_threshold).astype(np.float32)
+        d_pos, d_rot = self._goal_distance(achieved_goal, desired_goal)
+        achieved_pos = (d_pos < self.distance_threshold).astype(np.float32)
+        achieved_rot = (d_rot < self.rotation_threshold).astype(np.float32)
+        achieved_both = achieved_pos * achieved_rot
+        return achieved_both
 
     def _env_setup(self, initial_qpos):
 
