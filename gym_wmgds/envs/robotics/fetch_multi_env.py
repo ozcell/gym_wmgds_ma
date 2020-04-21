@@ -27,7 +27,7 @@ class FetchMultiEnv(robot_env.RobotEnv):
         change_stack_order=False, gripped_object=False, 
         target_in_the_air_percent=0.50, target_in_the_air_lower=0.00,
         obj_range_lower=None, obj_range_upper=None,
-        target_range_lower=None, target_range_upper=None
+        target_range_lower=None, target_range_upper=None, use_table_center=[False,False]
     ):
         """Initializes a new Fetch environment.
 
@@ -73,6 +73,7 @@ class FetchMultiEnv(robot_env.RobotEnv):
         self.obj_range_upper = obj_range_upper
         self.target_range_lower = target_range_lower
         self.target_range_upper = target_range_upper
+        self.use_table_center = use_table_center
 
         super(FetchMultiEnv, self).__init__(
             model_path=model_path, n_substeps=n_substeps, n_actions=self.n_actions,
@@ -249,16 +250,16 @@ class FetchMultiEnv(robot_env.RobotEnv):
         # Randomize start position of object.
         placement_count = 0
         for i_object in range(obj_grp, obj_grp + self.n_objects):
-            object_xpos = self.initial_gripper_xpos[:2]
-            while np.linalg.norm(object_xpos - self.initial_gripper_xpos[:2]) < 0.1:
+            object_xpos = self.reference[0][:2]
+            while np.linalg.norm(object_xpos - self.reference[0][:2]) < 0.1:
                 if self.obj_range_lower is None:
-                    object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
+                    object_xpos = self.reference[0][:2] + self.np_random.uniform(-self.obj_range, self.obj_range, size=2)
                 else:
-                    object_xpos = self.initial_gripper_xpos[:2] + self.np_random.uniform(self.obj_range_lower, self.obj_range_upper, size=2)
+                    object_xpos = self.reference[0][:2] + self.np_random.uniform(self.obj_range_lower, self.obj_range_upper, size=2)
                 placement_count += 1
                 for j_object in range(obj_grp, i_object):
                     if np.linalg.norm(object_xpos - self.sim.data.get_joint_qpos('object' + str(j_object) + ':joint')[:2]) < 0.070:
-                        object_xpos = self.initial_gripper_xpos[:2]
+                        object_xpos = self.reference[0][:2]
                         break
                 if placement_count >= 1000:
                     print('object placement is ended as maximum number of trials has been reached')
@@ -309,7 +310,7 @@ class FetchMultiEnv(robot_env.RobotEnv):
             goal = np.copy(self.sim.data.get_joint_qpos('object' + str(object_order[0]) + ':joint')[:3])
         else:
             object_order = np.arange(self.n_objects)
-            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+            goal = self.reference[1][:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
         goal += self.target_offset
         goal[2] = self.height_offset
         if self.target_in_the_air and self.np_random.uniform() < 0.5:
@@ -344,15 +345,15 @@ class FetchMultiEnv(robot_env.RobotEnv):
                             goal_all.append(other_goals[i_object-1].copy())
                         #<--this part is for creating different stacking objectives
                         else:
-                            goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+                            goal = self.reference[1][:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
                             goal += self.target_offset
                             goal[2] = self.height_offset 
                             goal_all.append(goal.copy())
             else:
                 if self.target_range_lower is None: 
-                    goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+                    goal = self.reference[1][:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
                 else:
-                    goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(self.target_range_lower, self.target_range_upper, size=3)
+                    goal = self.reference[1][:3] + self.np_random.uniform(self.target_range_lower, self.target_range_upper, size=3)
                 goal[2] = self.height_offset
                 goal += self.target_offset
                 if self.target_in_the_air and self.np_random.uniform() < self.target_in_the_air_percent:
@@ -385,6 +386,13 @@ class FetchMultiEnv(robot_env.RobotEnv):
 
         # Extract information for sampling goals.
         self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()
+        self.table_center = self.sim.data.get_site_xpos('table0:center').copy()
+        self.reference = []
+        for i_ref in self.use_table_center:
+            if i_ref:
+                self.reference.append(self.table_center)
+            else:
+                self.reference.append(self.initial_gripper_xpos)
         self.height_offset = self.sim.data.get_site_xpos('object0')[2]
         
         # Just to send object0 back to the floor 
