@@ -457,7 +457,21 @@ for reward_type in ['sparse', 'dense']:
         entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceHardMultiEnv',
         kwargs=kwargs,
         max_episode_steps=50,
-    )       
+    )
+
+    register(
+        id='FetchPickAndPlaceHarderMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceHarderMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )  
+
+    register(
+        id='FetchPickAndPlaceHardestMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceHardestMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )         
 
     # Kortex
     register(
