@@ -65,7 +65,7 @@ class FetchPickAndPlaceHardMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPickl
         utils.EzPickle.__init__(self)
 
 
-class FetchPickAndPlaceHarderMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPickle):
+class FetchPickAndPlaceHard2MultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPickle):
     def __init__(self, reward_type='sparse', n_objects=1, obj_action_type=[0,1,2], observe_obj_grp=False, obj_range=0.15, hide_extra_objs=False):
         initial_qpos = {
             'robot0:slide0': 0.405,
@@ -88,10 +88,10 @@ class FetchPickAndPlaceHarderMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPic
             obj_range=obj_range, target_range=0.15, distance_threshold=0.05, 
             initial_qpos=initial_qpos, reward_type=reward_type,
             n_objects=n_objects, obj_action_type=obj_action_type, observe_obj_grp=observe_obj_grp,
+            obj_range_lower=[-0.225,-0.325], obj_range_upper=[0.225,0.325],
             target_range_lower=[-0.225,-0.325,0.00], target_range_upper=[0.225,0.325,0.00],
-            target_in_the_air_percent=1.5, target_in_the_air_lower=0.05,
-            use_table_center=[False,True])
-        utils.EzPickle.__init__(self)
+            use_table_center=[True,True])
+        utils.EzPickle.__init__(self)        
 
 
 class FetchPickAndPlaceHardestMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPickle):
