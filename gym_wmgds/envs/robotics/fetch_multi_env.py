@@ -386,11 +386,10 @@ class FetchMultiEnv(robot_env.RobotEnv):
 
         # Extract information for sampling goals.
         self.initial_gripper_xpos = self.sim.data.get_site_xpos('robot0:grip').copy()
-        self.table_center = self.sim.data.get_site_xpos('table0:center').copy()
         self.reference = []
         for i_ref in self.use_table_center:
             if i_ref:
-                self.reference.append(self.table_center)
+                self.reference.append(self.sim.data.get_site_xpos('table0:center').copy())
             else:
                 self.reference.append(self.initial_gripper_xpos)
         self.height_offset = self.sim.data.get_site_xpos('object0')[2]
