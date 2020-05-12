@@ -436,7 +436,14 @@ for reward_type in ['sparse', 'dense']:
         entry_point='gym_wmgds.envs.robotics:FetchPushObstacleDoubleGapMultiEnv',
         kwargs=kwargs,
         max_episode_steps=80,
-    )   
+    )
+
+    register(
+        id='FetchPushObstacleMazeMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPushObstacleMazeMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=80,
+    )    
 
     register(
         id='FetchPickAndPlaceObstacleMulti{}-v1'.format(suffix),
@@ -472,6 +479,13 @@ for reward_type in ['sparse', 'dense']:
         kwargs=kwargs,
         max_episode_steps=50,
     )         
+
+    register(
+        id='FetchPickAndPlaceInsertionMulti{}-v1'.format(suffix),
+        entry_point='gym_wmgds.envs.robotics:FetchPickAndPlaceInsertionMultiEnv',
+        kwargs=kwargs,
+        max_episode_steps=50,
+    )   
 
     # Kortex
     register(

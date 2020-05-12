@@ -21,11 +21,13 @@ from gym_wmgds.envs.robotics.fetch.slide_multi import FetchSlideMultiEnv
 from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleSideGapMultiEnv
 from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleMiddleGapMultiEnv
 from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleDoubleGapMultiEnv
+from gym_wmgds.envs.robotics.fetch.push_multi import FetchPushObstacleMazeMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceObstacleMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceShelfMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceHardMultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceHard2MultiEnv
 from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceHardestMultiEnv
+from gym_wmgds.envs.robotics.fetch.pick_and_place_multi import FetchPickAndPlaceInsertionMultiEnv
 
 from gym_wmgds.envs.robotics.hand.reach import HandReachEnv
 from gym_wmgds.envs.robotics.hand.manipulate import HandBlockEnv
