@@ -362,6 +362,31 @@ class FetchMultiEnv(robot_env.RobotEnv):
 
         goal_all = np.asarray(goal_all)
 
+        if 'hole0:joint' in self.sim.model.joint_names:
+            object_xpos = np.copy(self.sim.data.get_joint_qpos('object0:joint')[:2])
+            while np.linalg.norm(object_xpos - goal_all.ravel()[:2]) < 0.125:
+                if self.target_range_lower is None: 
+                    goal = self.reference[1][:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
+                else:
+                    goal = self.reference[1][:3] + self.np_random.uniform(self.target_range_lower, self.target_range_upper, size=3)
+                goal[2] = self.height_offset
+                goal += self.target_offset
+                if self.target_in_the_air and self.np_random.uniform() < self.target_in_the_air_percent:
+                    goal[2] += self.np_random.uniform(self.target_in_the_air_lower, 0.45)
+                goal_all[0] = goal.copy()
+                
+            hole_qpos = self.sim.data.get_joint_qpos('hole0:joint')
+            hole_qpos[:3] = goal_all.copy().ravel()
+            self.sim.data.set_joint_qpos('hole0:joint', hole_qpos)
+            self.sim.forward()
+
+            for _ in range(10):
+                self._set_action(np.zeros(self.n_actions))
+                try:
+                    self.sim.step()
+                except mujoco_py.MujocoException:
+                    return False
+                
         return goal_all.copy().ravel()
 
     def _is_success(self, achieved_goal, desired_goal):
@@ -392,7 +417,10 @@ class FetchMultiEnv(robot_env.RobotEnv):
                 self.reference.append(self.sim.data.get_site_xpos('table0:center').copy())
             else:
                 self.reference.append(self.initial_gripper_xpos)
-        self.height_offset = self.sim.data.get_site_xpos('object0')[2]
+        if 'maze0:center' in self.sim.model.site_names:
+            self.height_offset = 0.425
+        else:
+            self.height_offset = self.sim.data.get_site_xpos('object0')[2]
         
         # Just to send object0 back to the floor 
         self.initial_qpos['object0:joint'] = [0.00, 0.025, 0.025, 1., 0., 0., 0.]
