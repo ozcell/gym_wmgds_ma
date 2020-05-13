@@ -364,7 +364,7 @@ class FetchMultiEnv(robot_env.RobotEnv):
 
         if 'hole0:joint' in self.sim.model.joint_names:
             object_xpos = np.copy(self.sim.data.get_joint_qpos('object0:joint')[:2])
-            while np.linalg.norm(object_xpos - goal_all.ravel()[:2]) < 0.125:
+            while np.linalg.norm(object_xpos - goal_all.ravel()[:2]) < 0.15:
                 if self.target_range_lower is None: 
                     goal = self.reference[1][:3] + self.np_random.uniform(-self.target_range, self.target_range, size=3)
                 else:
