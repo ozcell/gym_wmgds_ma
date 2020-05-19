@@ -5,6 +5,7 @@ from gym_wmgds.envs.robotics import fetch_multi_env
 
 # Ensure we get the path separator correct on windows
 MODEL_XML_PATH = os.path.join('fetch', 'pick_and_place_multi.xml')
+MODEL_HARD_XML_PATH = os.path.join('fetch', 'pick_and_place_hard_multi.xml')
 MODEL_OBSTACLE_XML_PATH = os.path.join('fetch', 'pick_and_place_obstacle_multi.xml')
 MODEL_SHELF_XML_PATH = os.path.join('fetch', 'pick_and_place_shelf_multi.xml')
 MODEL_INSERTION_XML_PATH = os.path.join('fetch', 'pick_and_place_insertion_multi.xml')
@@ -113,7 +114,7 @@ class FetchPickAndPlaceHardestMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPi
             'object9:joint': [0.90, 0.025, 0.025, 1., 0., 0., 0.]
         }
         fetch_multi_env.FetchMultiEnv.__init__(
-            self, MODEL_XML_PATH, block_gripper=False, n_substeps=20,
+            self, MODEL_HARD_XML_PATH, block_gripper=False, n_substeps=20,
             gripper_extra_height=0.2, target_in_the_air=True, target_stacked=False, target_offset=0.0,
             obj_range=obj_range, target_range=0.15, distance_threshold=0.05, 
             initial_qpos=initial_qpos, reward_type=reward_type,
