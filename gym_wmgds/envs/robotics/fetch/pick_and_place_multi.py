@@ -114,7 +114,7 @@ class FetchPickAndPlaceHardestMultiEnv(fetch_multi_env.FetchMultiEnv, utils.EzPi
             'object9:joint': [0.90, 0.025, 0.025, 1., 0., 0., 0.]
         }
         fetch_multi_env.FetchMultiEnv.__init__(
-            self, MODEL_HARD_XML_PATH, block_gripper=False, n_substeps=20,
+            self, MODEL_XML_PATH, block_gripper=False, n_substeps=20,
             gripper_extra_height=0.2, target_in_the_air=True, target_stacked=False, target_offset=0.0,
             obj_range=obj_range, target_range=0.15, distance_threshold=0.05, 
             initial_qpos=initial_qpos, reward_type=reward_type,
