@@ -10,8 +10,8 @@ extras = {
   'atari': ['atari_py>=0.1.4', 'Pillow', 'PyOpenGL'],
   'box2d': ['box2d-py>=2.3.5'],
   'classic_control': ['PyOpenGL'],
-  'mujoco': ['mujoco_py>=1.50', 'imageio'],
-  'robotics': ['mujoco_py>=1.50', 'imageio'],
+  'mujoco': ['mujoco_py==1.50.1.68', 'imageio'],
+  'robotics': ['mujoco_py==1.50.1.68', 'imageio'],
 }
 
 # Meta dependency groups.
@@ -22,10 +22,10 @@ extras['all'] = all_deps
 
 setup(name='gym_wmgds',
       version=VERSION,
-      description='The OpenAI gym_wmgds: A toolkit for developing and comparing your reinforcement learning agents.',
-      url='https://github.com/openai/gym_wmgds',
-      author='OpenAI',
-      author_email='gym_wmgds@openai.com',
+      description='gym_wmgds: A fork of OpenAI gym supporting the object training',
+      url='',
+      author='Editted from original OpenAI gym',
+      author_email='',
       license='',
       packages=[package for package in find_packages()
                 if package.startswith('gym_wmgds')],
